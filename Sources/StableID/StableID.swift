@@ -20,6 +20,8 @@ public class StableID {
     private init(_id: String, _idGenerator: IDGenerator) {
         self._id = _id
         self._idGenerator = _idGenerator
+
+        self.saveIDToStores()
     }
 
     private static var _remoteStore = NSUbiquitousKeyValueStore.default
@@ -90,11 +92,17 @@ public class StableID {
             Self.logger.log(type: .info, message: "Setting StableID to \(adjustedId)")
 
             Self.shared._id = adjustedId
-            self.setLocal(key: Constants.StableID_Key_Identifier, value: adjustedId)
-            self.setRemote(key: Constants.StableID_Key_Identifier, value: adjustedId)
+            self.saveIDToStores()
 
             self.delegate?.didChangeID(newID: adjustedId)
         }
+    }
+
+    private func saveIDToStores() {
+        Self.logger.log(type: .info, message: "Saving StableID to local and remote stores.")
+
+        self.setLocal(key: Constants.StableID_Key_Identifier, value: _id)
+        self.setRemote(key: Constants.StableID_Key_Identifier, value: _id)
     }
 
     private func generateID() {
